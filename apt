@@ -1,0 +1,155 @@
+#!/bin/bash
+# chromium based browser installer for termux proot-distro debian/ubuntu
+# only include browser that support arm64
+
+install_deps()
+{
+apt update 
+apt install curl apt-transport-https gnupg -y
+}
+
+install_chrome()
+{
+    install -d -m 0755 /etc/apt/keyrings
+    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
+    echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+    apt update
+    apt install -y google-chrome-stable
+}
+
+uninstall_chrome()
+{
+    apt remove -y google-chrome-stable
+}
+
+install_brave()
+{
+    install -d -m 0755 /etc/apt/keyrings
+    curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+    curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
+    apt update
+    apt install -y brave-browser
+}
+
+uninstall_brave()
+{
+    apt remove -y brave-browser
+}
+
+install_braveorigin()
+{
+    install -d -m 0755 /etc/apt/keyrings
+    curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+    curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
+    apt update
+    apt install -y brave-origin
+}
+
+uninstall_braveorigin()
+{
+    apt remove -y brave-origin
+}
+
+install_vivaldi()
+{
+    install -d -m 0755 /etc/apt/keyrings
+    curl -fsSL https://repo.vivaldi.com/archive/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/vivaldi.gpg
+    echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/deb/ stable main" > /etc/apt/sources.list.d/vivaldi.list
+    apt update
+    apt install -y vivaldi-stable
+}
+
+uninstall_vivaldi()
+{
+    apt remove -y vivaldi-stable
+}
+
+
+install_browser_files()
+{
+    local browser_name=$1
+    install -d -m 0755 /usr/local/share/applications
+    curl -fsSLo /usr/local/share/applications/${browser_name}-proot.desktop https://raw.githubusercontent.com/arfshl/prootdistro-chromium-installer/refs/heads/main/${browser_name}-proot.desktop && chmod 0644 /usr/local/share/applications/${browser_name}-proot.desktop
+}
+
+uninstall_browser_files()
+{
+    local browser_name=$1
+    rm /usr/local/share/applications/${browser_name}-proot.desktop
+}
+
+check_installed()
+{
+    local browser_name=$1
+    [ -f /usr/local/share/applications/${browser_name}-proot.desktop ]
+}
+
+install_browser()
+{
+    local browser_name=$1
+
+    if check_installed ${browser_name}; then
+        echo "${browser_name} already installed" >&2
+        exit 1
+    fi
+    eval install_${browser_name}
+    install_browser_files ${browser_name}
+}
+
+uninstall_browser()
+{
+    local browser_name=$1
+    eval uninstall_${browser_name}
+    uninstall_browser_files ${browser_name}
+}
+
+usage()
+{
+    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi>"
+    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi>"
+    exit 1
+}
+
+if [ $(id -u) -ne 0 ]; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
+[ $# -eq 0 ] && usage
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+    install)
+        case "$2" in
+        brave|braveorigin|chrome|vivaldi)
+            browser=$2
+            install_deps
+            install_browser "$browser"
+            exit $?
+            ;;
+        *)
+            usage
+            ;;
+        esac
+        shift 2
+        ;;
+
+    uninstall)
+        case "$2" in
+        brave|braveorigin|chrome|vivaldi)
+            browser=$2
+            uninstall_browser "$browser"
+            exit $?
+            ;;
+        *)
+            usage
+            ;;
+        esac
+        shift 2
+        ;;
+
+    *)
+        usage
+        ;;
+    esac
+done

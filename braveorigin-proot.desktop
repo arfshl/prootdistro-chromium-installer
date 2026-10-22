@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Brave Origin (proot launcher)
+Comment=Access the Internet
+Exec=/usr/bin/brave-origin-stable --no-sandbox --no-zygote --password-store=basic --v=0 %U
+StartupNotify=true
+StartupWMClass=brave-origin
+Terminal=false
+Icon=brave-origin
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/chromium;
