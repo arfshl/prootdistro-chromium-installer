@@ -1,0 +1,174 @@
+#!/bin/bash
+# chromium based browser installer for termux proot-distro fedora
+# only include browser that support arm64
+
+install_deps()
+{
+    zypper install -y zypper curl rpm
+}
+
+install_chrome()
+{
+    rpm --import https://dl.google.com/linux/linux_signing_key.pub
+    zypper removerepo google-chrome-arm64 2>/dev/null
+    zypper removerepo google-chrome-x86 2>/dev/null
+    zypper ar -f http://dl.google.com/linux/chrome/rpm/stable/aarch64 google-chrome-arm64
+    zypper ar -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome-x86
+    zypper --non-interactive ref
+    zypper install -y google-chrome-stable
+}
+
+uninstall_chrome()
+{
+    zypper remove -y google-chrome-stable
+    zypper removerepo google-chrome-arm64 2>/dev/null
+    zypper removerepo google-chrome-x86 2>/dev/null
+}
+
+install_brave()
+{
+    
+    zypper removerepo brave-browser 2>/dev/null
+    zypper addrepo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+    zypper --non-interactive ref
+    zypper install -y brave-browser
+}
+
+uninstall_brave()
+{
+    zypper remove -y brave-browser
+    zypper removerepo brave-browser 2>/dev/null
+}
+
+install_braveorigin()
+{
+    
+    zypper removerepo brave-browser 2>/dev/null
+    zypper addrepo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+    zypper --non-interactive ref
+    zypper install -y brave-origin
+}
+
+uninstall_braveorigin()
+{
+    zypper remove -y brave-origin
+    zypper removerepo brave-browser 2>/dev/null
+}
+
+install_vivaldi()
+{
+    rpm --import https://repo.vivaldi.com/archive/linux_signing_key.pub
+    zypper removerepo vivaldi-suse 2>/dev/null
+    zypper addrepo https://repo.vivaldi.com/archive/vivaldi-suse.repo
+    zypper --non-interactive ref
+    zypper install -y vivaldi-stable
+}
+
+uninstall_vivaldi()
+{
+    zypper remove -y vivaldi-stable
+    zypper removerepo vivaldi 2>/dev/null
+}
+
+install_browser_files()
+{
+    local browser_name=$1
+    install -d -m 0755 /usr/local/share/applications
+    curl -fsSLo /usr/local/share/applications/${browser_name}-proot.desktop https://raw.githubusercontent.com/arfshl/prootdistro-chromium-installer/refs/heads/main/${browser_name}-proot.desktop && chmod 0644 /usr/local/share/applications/${browser_name}-proot.desktop
+}
+
+uninstall_browser_files()
+{
+    local browser_name=$1
+    rm -f /usr/local/share/applications/${browser_name}-proot.desktop
+}
+
+check_installed()
+{
+    local browser_name=$1
+    local pkg_name=""
+
+    case "$browser_name" in
+        chrome)      pkg_name="google-chrome-stable" ;;
+        brave)       pkg_name="brave-browser" ;;
+        braveorigin) pkg_name="brave-origin" ;;
+        vivaldi)     pkg_name="vivaldi-stable" ;;
+        *)
+            echo "Error: Invalid browser '$browser_name'" >&2
+            usage
+            exit 1
+            ;;
+    esac
+
+    rpm -q "$pkg_name" &>/dev/null
+}
+
+install_browser()
+{
+    local browser_name=$1
+
+    if check_installed ${browser_name}; then
+        echo "${browser_name} already installed" >&2
+        exit 1
+    fi
+    eval install_${browser_name}
+    install_browser_files ${browser_name}
+}
+
+uninstall_browser()
+{
+    local browser_name=$1
+    eval uninstall_${browser_name}
+    uninstall_browser_files ${browser_name}
+}
+
+usage()
+{
+    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi>"
+    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi>"
+    exit 1
+}
+
+if [ $(id -u) -ne 0 ]; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
+[ $# -eq 0 ] && usage
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+    install)
+        case "$2" in
+        brave|braveorigin|chrome|vivaldi)
+            browser=$2
+            install_deps
+            install_browser "$browser"
+            exit $?
+            ;;
+        *)
+            usage
+            ;;
+        esac
+        shift 2
+        ;;
+
+    uninstall)
+        case "$2" in
+        brave|braveorigin|chrome|vivaldi)
+            browser=$2
+            uninstall_browser "$browser"
+            exit $?
+            ;;
+        *)
+            usage
+            ;;
+        esac
+        shift 2
+        ;;
+
+    *)
+        usage
+        ;;
+    esac
+done

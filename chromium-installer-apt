@@ -11,6 +11,8 @@ apt install curl apt-transport-https gnupg -y
 install_chrome()
 {
     install -d -m 0755 /etc/apt/keyrings
+    rm -f /etc/apt/sources.list.d/google-chrome.list
+    rm -f /etc/apt/keyrings/google-chrome.gpg
     curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
     echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
     apt update
@@ -20,6 +22,8 @@ install_chrome()
 uninstall_chrome()
 {
     apt remove -y google-chrome-stable
+    rm -f /etc/apt/sources.list.d/google-chrome.list
+    rm -f /etc/apt/keyrings/google-chrome.gpg
 }
 
 install_brave()
@@ -34,6 +38,8 @@ install_brave()
 uninstall_brave()
 {
     apt remove -y brave-browser
+    rm -f /etc/apt/sources.list.d/brave-browser-release.sources
+    rm -f /usr/share/keyrings/brave-browser-archive-keyring.gpg
 }
 
 install_braveorigin()
@@ -48,11 +54,15 @@ install_braveorigin()
 uninstall_braveorigin()
 {
     apt remove -y brave-origin
+    rm -f /etc/apt/sources.list.d/brave-browser-release.sources
+    rm -f /usr/share/keyrings/brave-browser-archive-keyring.gpg
 }
 
 install_vivaldi()
 {
     install -d -m 0755 /etc/apt/keyrings
+    rm -f /etc/apt/keyrings/vivaldi.gpg
+    rm -f /etc/apt/sources.list.d/vivaldi.list
     curl -fsSL https://repo.vivaldi.com/archive/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/vivaldi.gpg
     echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/deb/ stable main" > /etc/apt/sources.list.d/vivaldi.list
     apt update
@@ -62,6 +72,8 @@ install_vivaldi()
 uninstall_vivaldi()
 {
     apt remove -y vivaldi-stable
+    rm -f /etc/apt/keyrings/vivaldi.gpg
+    rm -f /etc/apt/sources.list.d/vivaldi.list
 }
 
 
@@ -81,7 +93,22 @@ uninstall_browser_files()
 check_installed()
 {
     local browser_name=$1
-    [ -f /usr/local/share/applications/${browser_name}-proot.desktop ]
+    local pkg_name=""
+
+    case "$browser_name" in
+        chrome)      pkg_name="google-chrome-stable" ;;
+        brave)       pkg_name="brave-browser" ;;
+        braveorigin) pkg_name="brave-browser" ;;
+        vivaldi)     pkg_name="vivaldi-stable" ;;
+        *)
+            echo "Error: Invalid browser '$browser_name'" >&2
+            usage
+            exit 1
+            ;;
+    esac
+
+    dpkg-query -W -f='${Status}' "$pkg_name" 2>/dev/null |
+        grep -q 'install ok installed'
 }
 
 install_browser()
