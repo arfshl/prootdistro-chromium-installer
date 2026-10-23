@@ -19,11 +19,17 @@ Download the scripts
 # For Debian/Ubuntu
 curl -fsSLO https://raw.githubusercontent.com/arfshl/prootdistro-chromium-installer/refs/heads/main/chromium-installer-apt
 
+chmod +x chromium-installer-apt
+
 # For Fedora
 curl -fsSLO https://raw.githubusercontent.com/arfshl/prootdistro-chromium-installer/refs/heads/main/chromium-installer-dnf
 
+chmod +x chromium-installer-dnf
+
 # For OpenSUSE
 curl -fsSLO https://raw.githubusercontent.com/arfshl/prootdistro-chromium-installer/refs/heads/main/chromium-installer-zypper
+
+chmod +x chromium-installer-zypper
 ````
 
 Proceed as user root or sudo with the following steps.
