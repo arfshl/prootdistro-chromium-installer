@@ -2,7 +2,7 @@
 
 This project is a fork from [mrclksr/linux-browser-installer](https://github.com/mrclksr/linux-browser-installer)
 
-`prootdistro-chromium-installer` is bash script to install chromium-based web browser on proot-distro, and patch their desktop launcher
+`prootdistro-chromium-installer` is bash script to install chromium-based web browser on proot-distro, and patch their desktop launcher, this tool only supports Debian, Ubuntu, Fedora, RHEL-based and OpenSUSE
 
 ```
 brave - Brave Browser
