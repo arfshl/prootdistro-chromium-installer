@@ -9,9 +9,8 @@ dnf install dnf-plugins-core fedora-workstation-repositories -y --setopt=strict=
 
 install_chrome()
 {
-    rm -f /etc/yum.repos.d/google-chrome-*.repo
-    dnf config-manager addrepo --id=google-chrome-arm64 --set=baseurl=http://dl.google.com/linux/chrome/rpm/stable/aarch64 --set=gpgkey=https://dl.google.com/linux/linux_signing_key.pub --set=gpgcheck=1 --set=repo_gpgcheck=1 --set=priority=10
-    dnf config-manager addrepo --id=google-chrome-x86 --set=baseurl=http://dl.google.com/linux/chrome/rpm/stable/aarch64 --set=gpgkey=https://dl.google.com/linux/linux_signing_key.pub --set=gpgcheck=1 --set=repo_gpgcheck=1 --set=priority=10
+    rm -f /etc/yum.repos.d/google-chrome.repo
+    dnf config-manager addrepo --id=google-chrome --set=baseurl=http://dl.google.com/linux/chrome/rpm/stable/$basearch --set=gpgkey=https://dl.google.com/linux/linux_signing_key.pub --set=gpgcheck=1 --set=repo_gpgcheck=1 --set=priority=10
     dnf makecache
     dnf install google-chrome-stable -y
 }
@@ -19,7 +18,7 @@ install_chrome()
 uninstall_chrome()
 {
     dnf remove -y google-chrome-stable
-    rm -f /etc/yum.repos.d/google-chrome-*.repo
+    rm -f /etc/yum.repos.d/google-chrome.repo
 }
 
 install_brave()

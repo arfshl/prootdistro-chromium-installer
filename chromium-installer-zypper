@@ -10,10 +10,8 @@ install_deps()
 install_chrome()
 {
     rpm --import https://dl.google.com/linux/linux_signing_key.pub
-    zypper removerepo google-chrome-arm64 2>/dev/null
-    zypper removerepo google-chrome-x86 2>/dev/null
-    zypper ar -f http://dl.google.com/linux/chrome/rpm/stable/aarch64 google-chrome-arm64
-    zypper ar -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome-x86
+    zypper removerepo google-chrome 2>/dev/null
+    zypper ar -f http://dl.google.com/linux/chrome/rpm/stable/$basearch google-chrome
     zypper --non-interactive ref
     zypper install -y google-chrome-stable
 }
@@ -21,8 +19,7 @@ install_chrome()
 uninstall_chrome()
 {
     zypper remove -y google-chrome-stable
-    zypper removerepo google-chrome-arm64 2>/dev/null
-    zypper removerepo google-chrome-x86 2>/dev/null
+    zypper removerepo google-chrome 2>/dev/null
 }
 
 install_brave()
