@@ -4,7 +4,7 @@
 
 install_deps()
 {
-    zypper install -y zypper curl rpm
+    zypper install -y curl
 }
 
 install_chrome()
@@ -111,6 +111,7 @@ install_browser()
         echo "${browser_name} already installed" >&2
         exit 1
     fi
+    install_deps
     eval install_${browser_name}
     install_browser_files ${browser_name}
 }
@@ -142,7 +143,6 @@ while [ $# -gt 0 ]; do
         case "$2" in
         brave|braveorigin|chrome|vivaldi)
             browser=$2
-            install_deps
             install_browser "$browser"
             exit $?
             ;;
