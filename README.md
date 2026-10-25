@@ -47,8 +47,8 @@ You'll will found the patched desktop launcher with `(proot launcher)` prefix, f
 #### Uninstall browser
 
 ````
-./chromium-installer-apt install <browser>
-./chromium-installer-dnf install <browser>
+./chromium-installer-apt uninstall <browser>
+./chromium-installer-dnf uninstall <browser>
 ./chromium-installer-zypper uninstall <browser>
 ````
 
