@@ -64,6 +64,20 @@ uninstall_vivaldi()
     rm -f /etc/yum.repos.d/vivaldi-fedora.repo
 }
 
+install_opera()
+{
+    rm -f /etc/yum.repos.d/google-chrome.repo
+    dnf config-manager addrepo --id=opera-stable --set=baseurl=https://rpm.opera.com/rpm --set=gpgkey=https://rpm.opera.com/rpmrepo.key --set=gpgcheck=1 --set=repo_gpgcheck=1 --set=priority=10
+    dnf makecache
+    dnf install opera-stable -y
+}
+
+uninstall_opera()
+{
+    dnf remove -y opera-stable
+    rm -f /etc/yum.repos.d/opera-stable.repo
+}
+
 install_browser_files()
 {
     local browser_name=$1
@@ -74,7 +88,7 @@ install_browser_files()
 uninstall_browser_files()
 {
     local browser_name=$1
-    rm /usr/local/share/applications/${browser_name}-proot.desktop
+    rm -f /usr/local/share/applications/${browser_name}-proot.desktop
 }
 
 check_installed()
@@ -87,6 +101,7 @@ check_installed()
         brave)       pkg_name="brave-browser" ;;
         braveorigin) pkg_name="brave-origin" ;;
         vivaldi)     pkg_name="vivaldi-stable" ;;
+        opera)       pkg_name="opera-stable" ;;
         *)
             echo "Error: Invalid browser '$browser_name'" >&2
             usage
@@ -119,8 +134,8 @@ uninstall_browser()
 
 usage()
 {
-    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi>"
-    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi>"
+    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi|opera>"
+    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi|opera>"
     exit 1
 }
 
@@ -135,7 +150,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
     install)
         case "$2" in
-        brave|braveorigin|chrome|vivaldi)
+        brave|braveorigin|chrome|vivaldi|opera)
             browser=$2
             install_browser "$browser"
             exit $?
@@ -149,7 +164,7 @@ while [ $# -gt 0 ]; do
 
     uninstall)
         case "$2" in
-        brave|braveorigin|chrome|vivaldi)
+        brave|braveorigin|chrome|vivaldi|opera)
             browser=$2
             uninstall_browser "$browser"
             exit $?

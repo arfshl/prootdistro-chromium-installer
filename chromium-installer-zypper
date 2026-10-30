@@ -67,6 +67,21 @@ uninstall_vivaldi()
     zypper removerepo vivaldi 2>/dev/null
 }
 
+install_opera()
+{
+    rpm --import https://rpm.opera.com/rpmrepo.key
+    zypper removerepo opera-stable 2>/dev/null
+    zypper ar -f https://rpm.opera.com/rpm google-chrome
+    zypper --non-interactive ref
+    zypper install -y opera-stable
+}
+
+uninstall_opera()
+{
+    zypper remove -y opera-stable
+    zypper removerepo opera-stable 2>/dev/null
+}
+
 install_browser_files()
 {
     local browser_name=$1
@@ -90,6 +105,7 @@ check_installed()
         brave)       pkg_name="brave-browser" ;;
         braveorigin) pkg_name="brave-origin" ;;
         vivaldi)     pkg_name="vivaldi-stable" ;;
+        opera)       pkg_name="opera-stable" ;;
         *)
             echo "Error: Invalid browser '$browser_name'" >&2
             usage
@@ -122,8 +138,8 @@ uninstall_browser()
 
 usage()
 {
-    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi>"
-    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi>"
+    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi|opera>"
+    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi|opera>"
     exit 1
 }
 
@@ -138,7 +154,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
     install)
         case "$2" in
-        brave|braveorigin|chrome|vivaldi)
+        brave|braveorigin|chrome|vivaldi|opera)
             browser=$2
             install_browser "$browser"
             exit $?
@@ -152,7 +168,7 @@ while [ $# -gt 0 ]; do
 
     uninstall)
         case "$2" in
-        brave|braveorigin|chrome|vivaldi)
+        brave|braveorigin|chrome|vivaldi|opera)
             browser=$2
             uninstall_browser "$browser"
             exit $?

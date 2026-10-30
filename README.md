@@ -9,6 +9,7 @@ brave - Brave Browser
 braveorigin - Brave Origin
 chrome - Google Chrome
 vivaldi - Vivaldi Browser
+opera - Opera Browser
 ```
 
 ### Usage

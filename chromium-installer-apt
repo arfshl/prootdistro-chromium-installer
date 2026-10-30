@@ -76,6 +76,24 @@ uninstall_vivaldi()
     rm -f /etc/apt/sources.list.d/vivaldi.list
 }
 
+install_opera()
+{
+    install -d -m 0755 /etc/apt/keyrings
+    rm -f /etc/apt/sources.list.d/opera-stable.list
+    rm -f /etc/apt/keyrings/opera.gpg
+    curl -fsSL https://deb.opera.com/archive.key | gpg --dearmor -o /etc/apt/keyrings/opera.gpg
+    echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/opera.gpg] https://deb.opera.com/opera-stable/ stable non-free" > /etc/apt/sources.list.d/opera-stable.list
+    apt update
+    apt install -y opera-stable
+}
+
+uninstall_opera()
+{
+    apt remove -y opera-stable
+    rm -f /etc/apt/sources.list.d/opera-stable.list
+    rm -f /etc/apt/keyrings/opera.gpg
+}
+
 
 install_browser_files()
 {
@@ -87,7 +105,7 @@ install_browser_files()
 uninstall_browser_files()
 {
     local browser_name=$1
-    rm /usr/local/share/applications/${browser_name}-proot.desktop
+    rm -f /usr/local/share/applications/${browser_name}-proot.desktop
 }
 
 check_installed()
@@ -98,8 +116,9 @@ check_installed()
     case "$browser_name" in
         chrome)      pkg_name="google-chrome-stable" ;;
         brave)       pkg_name="brave-browser" ;;
-        braveorigin) pkg_name="brave-browser" ;;
+        braveorigin) pkg_name="brave-origin" ;;
         vivaldi)     pkg_name="vivaldi-stable" ;;
+        opera)       pkg_name="opera-stable" ;;
         *)
             echo "Error: Invalid browser '$browser_name'" >&2
             usage
@@ -133,8 +152,8 @@ uninstall_browser()
 
 usage()
 {
-    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi>"
-    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi>"
+    echo "Usage: $0 install <brave|braveorigin|chrome|vivaldi|opera>"
+    echo "       $0 uninstall <brave|braveorigin|chrome|vivaldi|opera>"
     exit 1
 }
 
@@ -149,7 +168,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
     install)
         case "$2" in
-        brave|braveorigin|chrome|vivaldi)
+        brave|braveorigin|chrome|vivaldi|opera)
             browser=$2
             install_browser "$browser"
             exit $?
@@ -163,7 +182,7 @@ while [ $# -gt 0 ]; do
 
     uninstall)
         case "$2" in
-        brave|braveorigin|chrome|vivaldi)
+        brave|braveorigin|chrome|vivaldi|opera)
             browser=$2
             uninstall_browser "$browser"
             exit $?
